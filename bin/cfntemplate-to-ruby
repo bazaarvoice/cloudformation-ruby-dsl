@@ -307,10 +307,6 @@ def simplify(val)
           FnCall.new 'join', [v[0]] + v[1], true
         when k == 'Fn::Select'
           FnCall.new 'select', v
-        when k == 'Ref' && v == 'AWS::Region'
-          FnCall.new 'aws_region', []
-        when k == 'Ref' && v == 'AWS::StackName'
-          FnCall.new 'aws_stack_name', []
         when k == 'Ref'
           FnCall.new 'ref', [v]
         else

@@ -35,7 +35,7 @@ end
 # Parse command-line arguments based on cfn-cmd syntax (cfn-create-stack etc.) and return the parameters and region
 def cfn_parse_args
   parameters = {}
-  region = ENV['EC2_REGION'] || ENV['AWS_DEFAULT_REGION'] || 'us-east-1'
+  region = ENV['EC2_REGION'] || ENV['AWS_DEFAULT_REGION']
   nopretty = false
   ARGV.slice_before(/^--/).each do |name, value|
     case name
