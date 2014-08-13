@@ -33,4 +33,5 @@ Gem::Specification.new do |gem|
   gem.require_paths = %w{lib bin}
 
   gem.add_runtime_dependency    'detabulator'
+  gem.add_runtime_dependency    'json-minify'
 end
