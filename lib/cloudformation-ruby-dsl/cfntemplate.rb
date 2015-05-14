@@ -391,6 +391,30 @@ end
 # Variant of join that matches the native CFN syntax.
 def join_list(delim, list) { :'Fn::Join' => [ delim, list ] } end
 
+def equal(one, two) { :'Fn::Equals' => [one, two] } end
+
+def fn_not(item) { :'Fn::Not' => [] } end
+
+def fn_or(*list) 
+  case list.length
+    when 0..1 then raise "fn_or needs at least 2 items."
+    when 2..10 then  { :'Fn::Or' => list }
+    else raise "fn_or needs a list of 2-10 items"
+  end
+end
+
+def fn_and(*list)
+  case list.length
+    when 0..1 then raise "fn_and needs at least 2 items."
+    when 2..10 then  { :'Fn::And' => list }
+    else raise "fn_and needs a list of 2-10 items"
+  end
+end
+
+def fn_if(cond, if_true, if_false) { :'Fn::If' => [cond, if_true, if_false] } end
+
+def not_equal(one, two) fn_not(equal(one,two)) end
+
 def select(index, list) { :'Fn::Select' => [ index, list ] } end
 
 def ref(name) { :Ref => name } end
