@@ -119,6 +119,8 @@ def pprint_cfn_template(tpl)
         v.each { |name, options| pprint_cfn_section 'mapping', name, options }
       when 'Resources'
         v.each { |name, options| pprint_cfn_resource name, options }
+      when 'Conditions'
+        v.each { |name, options| pprint_cfn_section 'condition', name, options }
       when 'Outputs'
         v.each { |name, options| pprint_cfn_section 'output', name, options }
       else
