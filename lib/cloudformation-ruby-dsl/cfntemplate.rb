@@ -69,11 +69,25 @@ def parse_args
   [stack_name, parameters, region, nopretty]
 end
 
-def cfn(template)
-  aws_cfn = AwsCfn.new
-  cfn_client = aws_cfn.cfn_client
-
-  action = ARGV[0]
+def validate_action(action)
+  valid = %w[
+    expand
+    diff
+    validate
+    create
+    update
+  ]
+  removed = %w[
+    cfn-cancel-update-stack
+    cfn-delete-stack
+    cfn-describe-stack-events
+    cfn-describe-stack-resource
+    cfn-describe-stack-resources
+    cfn-describe-stacks
+    cfn-get-template
+    cfn-list-stack-resources
+    cfn-list-stacks
+  ]
   deprecated = {
     "cfn-validate-template" => "validate",
     "cfn-create-stack" => "create",
@@ -81,13 +95,24 @@ def cfn(template)
   }
   if deprecated.keys.include? action
     replacement = deprecated[action]
-    $stderr.puts "WARNING: '#{action}' is deprecated and will be removed; use '#{replacement}' instead"
+    $stderr.puts "WARNING: '#{action}' is deprecated and will be removed in a future version. Please use '#{replacement}' instead."
     action = replacement
   end
-  unless %w(expand diff validate create update).include? action
-    $stderr.puts "usage: #{$PROGRAM_NAME} <expand|diff|validate|create|update>"
+  unless valid.include? action
+    if removed.include? action
+      $stderr.puts "ERROR: native command #{action} is no longer supported by cloudformation-ruby-dsl."
+    end
+    $stderr.puts "usage: #{$PROGRAM_NAME} <#{valid.join('|')}>"
     exit(2)
   end
+  action
+end
+
+def cfn(template)
+  aws_cfn = AwsCfn.new
+  cfn_client = aws_cfn.cfn_client
+
+  action = validate_action( ARGV[0] )
 
   # Find parameters where extension attribute :Immutable is true then remove it from the
   # cfn template since we can't pass it to CloudFormation.
