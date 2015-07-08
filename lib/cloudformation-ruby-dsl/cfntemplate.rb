@@ -34,13 +34,17 @@ require 'highline/import'
 class AwsCfn
   attr_accessor :cfn_client_instance
 
+  def initialize(**args)
+    Aws.config[:region] = args[:region] if args.key?(:region)
+  end
+
   def cfn_client
     if @cfn_client_instance == nil
         # credentials are loaded from the environment; see http://docs.aws.amazon.com/sdkforruby/api/Aws/CloudFormation/Client.html
         @cfn_client_instance = Aws::CloudFormation::Client.new(
         # we don't validate parameters because the aws-ruby-sdk gets a number parameter and expects it to be a string and fails the validation
         # see: https://github.com/aws/aws-sdk-ruby/issues/848
-        validate_params: false
+        validate_params: false,
       )
     end
     @cfn_client_instance
@@ -48,6 +52,7 @@ class AwsCfn
 end
 
 # utility class to deserialize Structs as JSON
+# borrowed from http://ruhe.tumblr.com/post/565540643/generate-json-from-ruby-struct
 class Struct
   def to_map
     map = Hash.new
@@ -127,7 +132,7 @@ def validate_action(action)
 end
 
 def cfn(template)
-  aws_cfn = AwsCfn.new
+  aws_cfn = AwsCfn.new(region: template.aws_region)
   cfn_client = aws_cfn.cfn_client
 
   action = validate_action( ARGV[0] )
