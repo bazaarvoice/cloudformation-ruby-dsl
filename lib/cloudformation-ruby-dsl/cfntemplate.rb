@@ -207,8 +207,8 @@ def cfn(template)
     old_parameters = old_attributes.parameters
 
     # Sort the tag strings alphabetically to make them easily comparable
-    old_tags_string = old_tags.sort.map { |tag| %Q(TAG "#{tag.key}=#{tag.value}"\n) }.join
-    tags_string     = cfn_tags.sort.map { |tag| "TAG \"#{tag}\"\n" }.join
+    old_tags_string = old_tags.map { |tag| %Q(TAG "#{tag.key}=#{tag.value}"\n) }.sort.join
+    tags_string     = cfn_tags.map { |k, v| %Q(TAG "#{k.to_s}=#{v}"\n) }.sort.join
 
     # Sort the parameter strings alphabetically to make them easily comparable
     old_parameters_string = old_parameters.sort! {|pCurrent, pNext| pCurrent.parameter_key <=> pNext.parameter_key }.map { |param| %Q(PARAMETER "#{param.parameter_key}=#{param.parameter_value}"\n) }.join
@@ -398,9 +398,9 @@ def cfn(template)
 
     # Tags are immutable in CloudFormation.  Validate against the existing stack to ensure tags haven't changed.
     # Compare the sorted arrays for an exact match
-    old_cfn_tags = old_stack.tags.map { |p| [p.key.to_sym, p.value]}
-    cfn_tags_ary = cfn_tags.to_a
-    if cfn_tags_ary.sort != old_cfn_tags
+    old_cfn_tags = old_stack.tags.map { |p| [p.key.to_sym, p.value]}.sort
+    cfn_tags_ary = cfn_tags.to_a.sort
+    if cfn_tags_ary != old_cfn_tags
       $stderr.puts "CloudFormation stack tags do not match and cannot be updated. You must either use the same tags or create a new stack." +
                       "\n" + (old_cfn_tags - cfn_tags_ary).map {|tag| "< #{tag}" }.join("\n") +
                       "\n" + "---" +
