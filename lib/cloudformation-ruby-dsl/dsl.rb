@@ -151,7 +151,6 @@ def get_azs(region = '') { :'Fn::GetAZs' => region } end
 def join(delim, *list)
   case list.length
     when 0 then ''
-    when 1 then list[0]
     else join_list(delim,list)
   end
 end
