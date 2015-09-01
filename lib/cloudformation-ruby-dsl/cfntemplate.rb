@@ -34,7 +34,7 @@ require 'highline/import'
 class AwsCfn
   attr_accessor :cfn_client_instance
 
-  def initialize(**args)
+  def initialize(args)
     Aws.config[:region] = args[:region] if args.key?(:region)
   end
 
@@ -44,7 +44,7 @@ class AwsCfn
         @cfn_client_instance = Aws::CloudFormation::Client.new(
         # we don't validate parameters because the aws-ruby-sdk gets a number parameter and expects it to be a string and fails the validation
         # see: https://github.com/aws/aws-sdk-ruby/issues/848
-        validate_params: false,
+        validate_params: false
       )
     end
     @cfn_client_instance
@@ -132,7 +132,7 @@ def validate_action(action)
 end
 
 def cfn(template)
-  aws_cfn = AwsCfn.new(region: template.aws_region)
+  aws_cfn = AwsCfn.new({:region => template.aws_region})
   cfn_client = aws_cfn.cfn_client
 
   action = validate_action( ARGV[0] )
