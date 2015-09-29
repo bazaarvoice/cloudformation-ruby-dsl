@@ -38,6 +38,13 @@ class Table
   end
 
   # Selects all rows in the table which match the name/value pairs of the predicate object and returns a
+  # hash of hashes, where the key for the top-level hash is the key paramter and the second-level hash keys are
+  # those in the keys paramter. This is useful when you want multiple column values for a given row.
+  def get_multihash(key, predicate, *keys)
+    build_nested_hash(filter(predicate), key, keys)
+  end
+
+  # Selects all rows in the table which match the name/value pairs of the predicate object and returns a
   # set of nested maps, where the key for the map at level n is the key at index n in the specified keys,
   # except for the last key in the specified keys which is used to determine the value of the leaf-level map.
   # In the simple case where keys is a list of 2 elements, this returns a map from key[0] to key[1].
@@ -66,6 +73,17 @@ class Table
     end
 
     @records.select { |record| predicate.all? { |key, value| matches(value, record[key]) } }
+  end
+
+  def build_nested_hash(records, key, keys)
+    hash = {}
+    records.each do |record|
+      hash[record[key]] = {}
+      keys.each do |hash_key|
+        hash[record[key]][hash_key] = record[hash_key]
+      end
+    end
+    return hash
   end
 
   def build_nested_map(records, path, multi)

@@ -94,6 +94,22 @@ template do
   mapping 'TableExampleMultimap',
           vpc.get_multimap({ :visibility => 'private', :zone => ['a', 'c'] }, :env, :region, :subnet)
 
+  # Shows how to use a table for iterative processing.
+  domains = Table.load 'maps/domains.txt'
+  domains.get_multihash(:purpose, {:product => 'demo', :alias => 'true'}, :prefix, :target, :alias_hosted_zone_id).each_pair do |key, value|
+    resource key+'Route53RecordSet', :Type => 'AWS::Route53::RecordSet', :Properties => {
+        :Comment => '',
+        :HostedZoneName => 'bazaarvoice.com',
+        :Name => value[:prefix]+'.bazaarvoice.com',
+        :Type => 'A',
+        :AliasTarget => {
+          :DNSName => value[:target],
+          :HostedZoneId => value[:alias_hosted_zone_id]
+        }
+    }
+  end
+
+
   # The tag type is a DSL extension; it is not a property of actual CloudFormation templates.
   #   These tags are excised from the template and used to generate a series of --tag arguments which are passed to CloudFormation when a stack is created.
   #   They do not ultimately appear in the expanded CloudFormation template.

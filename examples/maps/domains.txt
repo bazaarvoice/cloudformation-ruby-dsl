@@ -1,0 +1,4 @@
+purpose             product    prefix                     target                         alias  alias_hosted_zone_id  has_origin_domain  origin_target
+CDN                 demo       code                       dabc123.cloudfront.net         true   Z2FDTNDATAQYW2        false
+Assets              demo       assets                     ddef456.cloudfront.net         true   Z2FDTNDATAQYW2        false
+API                 demo       api                        prod-api                       false                        false              prod-api-origin.whatever.net.
