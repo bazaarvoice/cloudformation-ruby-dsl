@@ -36,6 +36,7 @@ class AwsCfn
 
   def initialize(args)
     Aws.config[:region] = args[:region] if args.key?(:region)
+    Aws.config[:credentials] = Aws::SharedCredentials.new(profile_name: args[:aws_profile]) unless args[:aws_profile].nil?
   end
 
   def cfn_client
@@ -72,6 +73,7 @@ def parse_args
   stack_name = nil
   parameters = {}
   region     = default_region
+  profile    = nil
   nopretty   = false
   ARGV.slice_before(/^--/).each do |name, value|
     case name
@@ -81,11 +83,13 @@ def parse_args
       parameters = Hash[value.split(/;/).map { |pair| pair.split(/=/, 2) }]  #/# fix for syntax highlighting
     when '--region'
       region = value
+    when '--profile'
+      profile = value
     when '--nopretty'
       nopretty = true
     end
   end
-  [stack_name, parameters, region, nopretty]
+  [stack_name, parameters, region, profile, nopretty]
 end
 
 def validate_action(action)
@@ -132,7 +136,7 @@ def validate_action(action)
 end
 
 def cfn(template)
-  aws_cfn = AwsCfn.new({:region => template.aws_region})
+  aws_cfn = AwsCfn.new({:region => template.aws_region, :aws_profile => template.aws_profile})
   cfn_client = aws_cfn.cfn_client
 
   action = validate_action( ARGV[0] )
@@ -152,7 +156,7 @@ def cfn(template)
   end
 
   # Derive stack name from ARGV
-  _, options = extract_options(ARGV[1..-1], %w(--nopretty), %w(--stack-name --region --parameters --tag))
+  _, options = extract_options(ARGV[1..-1], %w(--nopretty), %w(--profile --stack-name --region --parameters --tag))
   # If the first argument is not an option and stack_name is undefined, assume it's the stack name
   # The second argument, if present, is the resource name used by the describe-resource command
   if template.stack_name.nil?
@@ -515,6 +519,6 @@ end
 
 # Main entry point
 def template(&block)
-  stack_name, parameters, aws_region, nopretty = parse_args
-  raw_template(parameters, stack_name, aws_region, nopretty, &block)
+  stack_name, parameters, aws_region, aws_profile, nopretty = parse_args
+  raw_template(parameters, stack_name, aws_region, aws_profile, nopretty, &block)
 end

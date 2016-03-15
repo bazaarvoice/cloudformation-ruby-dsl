@@ -44,8 +44,8 @@ end
 ############################# CloudFormation DSL
 
 # Main entry point
-def raw_template(parameters = {}, stack_name = nil, aws_region = default_region, nopretty = false, &block)
-  TemplateDSL.new(parameters, stack_name, aws_region, nopretty, &block)
+def raw_template(parameters = {}, stack_name = nil, aws_region = default_region, aws_profile = nil, nopretty = false, &block)
+  TemplateDSL.new(parameters, stack_name, aws_region, aws_profile, nopretty, &block)
 end
 
 def default_region
@@ -54,12 +54,13 @@ end
 
 # Core interpreter for the DSL
 class TemplateDSL < JsonObjectDSL
-  attr_reader :parameters, :aws_region, :nopretty, :stack_name
+  attr_reader :parameters, :aws_region, :nopretty, :stack_name, :aws_profile
 
-  def initialize(parameters = {}, stack_name = nil, aws_region = default_region, nopretty = false)
+  def initialize(parameters = {}, stack_name = nil, aws_region = default_region, aws_profile = nil, nopretty = false)
     @parameters = parameters
     @stack_name = stack_name
     @aws_region = aws_region
+    @aws_profile = aws_profile
     @nopretty = nopretty
     super()
   end
