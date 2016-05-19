@@ -44,8 +44,8 @@ end
 ############################# CloudFormation DSL
 
 # Main entry point
-def raw_template(parameters = {}, stack_name = nil, aws_region = default_region, aws_profile = nil, nopretty = false, &block)
-  TemplateDSL.new(parameters, stack_name, aws_region, aws_profile, nopretty, &block)
+def raw_template(options, &block)
+  TemplateDSL.new(options, &block)
 end
 
 def default_region
@@ -54,14 +54,20 @@ end
 
 # Core interpreter for the DSL
 class TemplateDSL < JsonObjectDSL
-  attr_reader :parameters, :aws_region, :nopretty, :stack_name, :aws_profile
+  attr_reader :parameters,
+              :parameter_cli,
+              :aws_region,
+              :nopretty,
+              :stack_name,
+              :aws_profile
 
-  def initialize(parameters = {}, stack_name = nil, aws_region = default_region, aws_profile = nil, nopretty = false)
-    @parameters = parameters
-    @stack_name = stack_name
-    @aws_region = aws_region
-    @aws_profile = aws_profile
-    @nopretty = nopretty
+  def initialize(options)
+    @parameters  = options[:parameters]
+    @interactive = options[:interactive]
+    @stack_name  = options[:stack_name]
+    @aws_region  = options[:region]
+    @aws_profile = options[:profile]
+    @nopretty    = options[:nopretty]
     super()
   end
 
@@ -71,7 +77,78 @@ class TemplateDSL < JsonObjectDSL
 
   def parameter(name, options)
     default(:Parameters, {})[name] = options
-    @parameters[name] ||= options[:Default]
+
+    if @interactive
+      @parameters[name] ||= _get_parameter_from_cli(name, options)
+    else
+      @parameters[name] ||= options[:Default]
+    end
+  end
+
+  private def _get_parameter_from_cli(name, options)
+    # basic request
+    param_request = "Parameter '#{name}' (#{options[:Type]})"
+
+    # add description to request
+    if options.has_key?(:Description)
+      param_request += "\nDescription: #{options[:Description]}"
+    end
+
+    # add validation to the request
+
+    # allowed pattern
+    if options.has_key?(:AllowedPattern)
+      param_request += "\nAllowed Pattern: /#{options[:AllowedPattern]}/"
+    end
+
+    # allowed values
+    if options.has_key?(:AllowedValues)
+      param_request += "\nAllowed Values: #{options[:AllowedValues].join(', ')}"
+    end
+
+    # min/max length
+    if options.has_key?(:MinLength) or options.has_key?(:MaxLength)
+      min_length = "-infinity"
+      max_length = "+infinity"
+      if options.has_key?(:MinLength)
+        min_length = options[:MinLength]
+      end
+      if options.has_key?(:MaxLength)
+        max_length = options[:MaxLength]
+      end
+      param_request += "\nValid Length: #{min_length} < string < #{max_length}"
+    end
+
+    # min/max value
+    if options.has_key?(:MinValue) or options.has_key?(:MaxValue)
+      min_value = "-infinity"
+      max_value = "+infinity"
+      if options.has_key?(:MinValue)
+        min_value = options[:MinValue]
+      end
+      if options.has_key?(:MaxValue)
+        max_value = options[:MaxValue]
+      end
+      param_request += "\nValid Number: #{min_value} < number < #{max_value}"
+    end
+
+    # add default to request
+    if options.has_key?(:Default) and !options[:Default].nil?
+      param_request += "\nLeave value empty for default: #{options[:Default]}"
+    end
+
+    param_request += "\nValue: "
+
+    # request the param
+    $stdout.puts "===================="
+    $stdout.print param_request
+    input = $stdin.gets.chomp
+
+    if input.nil? or input.empty?
+      options[:Default]
+    else
+      input
+    end
   end
 
   # Find parameters where the specified attribute is true then remove the attribute from the cfn template.
