@@ -23,13 +23,27 @@ require 'cloudformation-ruby-dsl/table'
 
 template do
 
-  # Metadata may be embedded into the stack, as per http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/metadata-section-structure.html
-  stack_metadata = {
-    :MyCustomKey => 'MyCustomValue',
-    :AnotherKey => [ 'value1', 'value2' ]
+  # Metadata may be embedded into the stack, as per http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/metadata-section-structure.html 
+  # The below definition produces CloudFormation interface metadata.
+  metadata 'AWS::CloudFormation::Interface', {
+    :ParameterGroups => [
+      {
+        :Label => { :default => 'Instance options' },
+        :Parameters => [ 'InstanceType', 'ImageId', 'KeyPairName' ]
+      },
+      {
+        :Label => { :default => 'Other options' },
+        :Parameters => [ 'Label', 'EmailAddress' ]
+      }
+    ], 
+    :ParameterLabels => {
+      :EmailAddress => {
+        :default => "We value your privacy!"
+      }
+    }
   }
 
-  metadata stack_metadata
+  metadata 'fish', 'fingers'
 
   parameter 'Label',
             :Description => 'The label to apply to the servers.',

@@ -122,7 +122,7 @@ class TemplateDSL < JsonObjectDSL
     end
   end
 
-  def metadata(object) default(:Metadata, object) end
+  def metadata(name, options) default(:Metadata, {})[name] = options end
 
   def condition(name, options) default(:Conditions, {})[name] = options end
 
