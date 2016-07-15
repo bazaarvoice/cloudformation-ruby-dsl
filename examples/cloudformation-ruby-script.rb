@@ -43,8 +43,6 @@ template do
     }
   }
 
-  metadata 'fish', 'fingers'
-
   parameter 'Label',
             :Description => 'The label to apply to the servers.',
             :Type => 'String',
