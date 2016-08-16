@@ -57,6 +57,14 @@ Make the resulting file executable (`chmod +x [NEW_NAME.rb]`). It can respond to
 - `describe-resource`: given two arguments: stack-name and logical-resource-id, get output from a stack concerning the specific resource (takes optional `--nopretty` to minimize output)
 - `get-template`: get entire template output of an existing stack
 
+Command line options similar to cloudformation commands, but parsed by the dsl.
+ --profile --stack-name --region --parameters --tag  
+
+Any other parameters are passed directly onto cloudformation. (--disable-rollback for instance)
+
+Using the ruby scripts:
+template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-static;SnsQueue=mysnsqueue"
+
 Below are the various functions currently available in the DSL. See [the example script](examples/cloudformation-ruby-script.rb) for more usage information.
 
 ### DSL Statements
