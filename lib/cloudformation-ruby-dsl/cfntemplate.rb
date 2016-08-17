@@ -37,7 +37,7 @@ class AwsCfn
   def initialize(args)
     Aws.config[:region] = args[:region] if args.key?(:region)
     # Profile definition was replaced with environment variables
-    if args.key?(:aws_profile)
+    if args.key?(:aws_profile) && !(args[:aws_profile].nil? || args[:aws_profile].empty?)
         ENV['AWS_PROFILE'] = args[:aws_profile]
         ENV['AWS_ACCESS_KEY'] = nil
         ENV['AWS_ACCESS_KEY_ID'] = nil
