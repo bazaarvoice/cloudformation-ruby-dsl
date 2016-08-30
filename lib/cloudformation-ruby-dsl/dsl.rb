@@ -62,6 +62,7 @@ class TemplateDSL < JsonObjectDSL
     @aws_region = aws_region
     @aws_profile = aws_profile
     @nopretty = nopretty
+    @loaded_remote_resources = {}
     super()
   end
 
@@ -171,6 +172,20 @@ def find_in_map(map, key, name) { :'Fn::FindInMap' => [ map, key, name ] } end
 def get_att(resource, attribute) { :'Fn::GetAtt' => [ resource, attribute ] } end
 
 def get_azs(region = '') { :'Fn::GetAZs' => region } end
+
+def load_remote_resources(name, stack_name)
+  @loaded_remote_resources[name] = {}
+  aws_cfn = AwsCfn.new({:region => @aws_region, :aws_profile => @aws_profile})
+  cfn_client = aws_cfn.cfn_client
+  resources = cfn_client.describe_stack_resources({stack_name: stack_name,}).stack_resources
+  resources.each do |resource|
+    @loaded_remote_resources[name][resource['logical_resource_id']] = resource['physical_resource_id']
+  end
+end
+
+def get_remote_resource_id(name, resource_name)
+  @loaded_remote_resources[name][resource_name]
+end
 
 def join(delim, *list)
   case list.length
