@@ -113,6 +113,8 @@ def pprint_cfn_template(tpl)
   puts
   tpl.each do |section, v|
     case section
+      when 'Metadata'
+        v.each { |name, options| pprint_cfn_section 'metadata', name, options }        
       when 'Parameters'
         v.each { |name, options| pprint_cfn_section 'parameter', name, options }
       when 'Mappings'

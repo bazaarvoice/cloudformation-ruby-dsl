@@ -67,6 +67,7 @@ Add the named object to the appropriate collection.
 - `condition(name, conditions)`
 - `resource(name, options)`
 - `output(name, options)`
+- `metadata(object)`
 
 ### CloudFormation Function Calls
 

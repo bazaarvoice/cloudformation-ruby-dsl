@@ -36,7 +36,15 @@ class AwsCfn
 
   def initialize(args)
     Aws.config[:region] = args[:region] if args.key?(:region)
-    Aws.config[:credentials] = Aws::SharedCredentials.new(profile_name: args[:aws_profile]) unless args[:aws_profile].nil?
+    # Profile definition was replaced with environment variables
+    if args.key?(:aws_profile) && !(args[:aws_profile].nil? || args[:aws_profile].empty?)
+        ENV['AWS_PROFILE'] = args[:aws_profile]
+        ENV['AWS_ACCESS_KEY'] = nil
+        ENV['AWS_ACCESS_KEY_ID'] = nil
+        ENV['AMAZON_ACCESS_KEY_ID'] = nil
+    end
+    # Following line can be uncommented only when Amazon will provide the stable version of this functionality.
+    # Aws.config[:credentials] = Aws::SharedCredentials.new(profile_name: args[:aws_profile]) unless args[:aws_profile].nil?
   end
 
   def cfn_client

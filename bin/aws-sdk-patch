@@ -1,3 +1,0 @@
-#!/usr/bin/env ruby
-# Ruby shell to run bash patch file
-system( File.join( File.dirname(__FILE__) + "/../share/aws-sdk-patch.sh " + ARGV.join( ) ) )

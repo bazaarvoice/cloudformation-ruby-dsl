@@ -8,7 +8,8 @@ To get started:
 
 - fork this project on github
 - create a new branch named after the change you want to make; i.e., `git checkout -b mynewfeature`
-- make your changes and commit them
+- make your changes (including tests) and commit them
+- run the tests to make sure you haven't broken anything: ```rspec```
 - send a pull request to this project from your fork/branch
 
 Once you've sent your pull request, one of the project collaborators will review it and provide feedback. Please accept this commentary as constructive! It is intended as such.
