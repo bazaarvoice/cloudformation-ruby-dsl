@@ -88,7 +88,7 @@ def parse_args
     when '--stack-name'
       stack_name = value
     when '--parameters'
-      parameters = Hash[value.split(/;/).map { |pair| pair.split(/=/, 2) }]  #/# fix for syntax highlighting
+      parameters = Hash[value.split(/;/).map { |pair| parts = pair.split(/=/, 2); [ parts[0], Parameter.new(parts[1]) ] }]  #/# fix for syntax highlighting
     when '--region'
       region = value
     when '--profile'
@@ -149,9 +149,9 @@ def cfn(template)
 
   action = validate_action( ARGV[0] )
 
-  # Find parameters where extension attribute :Immutable is true then remove it from the
+  # Find parameters where extension attributes are true then remove them from the
   # cfn template since we can't pass it to CloudFormation.
-  immutable_parameters = template.excise_parameter_attribute!(:Immutable)
+  excised_parameters = template.excise_parameter_attributes!([:Immutable, :UsePreviousValue])
 
   # Tag CloudFormation stacks based on :Tags defined in the template.
   # Remove them from the template as well, so that the template is valid.
@@ -225,15 +225,15 @@ def cfn(template)
     # there is only ever one stack, since stack names are unique
     old_attributes = cfn_client.describe_stacks({stack_name: stack_name}).stacks[0]
     old_tags       = old_attributes.tags
-    old_parameters = old_attributes.parameters
+    old_parameters = Hash[old_attributes.parameters.map { |p| [p.parameter_key, p.parameter_value]}]
 
     # Sort the tag strings alphabetically to make them easily comparable
     old_tags_string = old_tags.map { |tag| %Q(TAG "#{tag.key}=#{tag.value}"\n) }.sort.join
     tags_string     = cfn_tags.map { |k, v| %Q(TAG "#{k.to_s}=#{v}"\n) }.sort.join
 
     # Sort the parameter strings alphabetically to make them easily comparable
-    old_parameters_string = old_parameters.sort! {|pCurrent, pNext| pCurrent.parameter_key <=> pNext.parameter_key }.map { |param| %Q(PARAMETER "#{param.parameter_key}=#{param.parameter_value}"\n) }.join
-    parameters_string     = template.parameters.sort.map { |key, value| "PARAMETER \"#{key}=#{value}\"\n" }.join
+    old_parameters_string = old_parameters.sort.map { |key, value| %Q(PARAMETER "#{key}=#{value}"\n) }.join
+    parameters_string     = template.parameters.sort.map { |key, value| "PARAMETER \"#{key}=#{!(value.empty? && value.use_previous_value) ? value : old_parameters[key]}\"\n" }.join
 
     # set default diff options
     Diffy::Diff.default_options.merge!(
@@ -287,6 +287,9 @@ def cfn(template)
 
   when 'create'
     begin
+
+      # Apply any default parameter values
+      apply_parameter_defaults(template.parameters)
 
       # default options (not overridable)
       create_stack_opts = {
@@ -426,16 +429,30 @@ def cfn(template)
     end
 
     # If updating a stack and some parameters or tags are marked as immutable, set the variable to true.
-    immutables_exist = nil 
+    immutables_exist = nil
 
-    if not immutable_parameters.empty?
-      old_parameters = Hash[old_stack.parameters.map { |p| [p.parameter_key, p.parameter_value]}]
-      new_parameters = template.parameters
-      immutable_parameters.sort.each do |param|
-        if old_parameters[param].to_s != new_parameters[param].to_s && old_parameters.key?(param)
-          $stderr.puts "Error: unable to update immutable parameter " +
-                           "'#{param}=#{old_parameters[param]}' to '#{param}=#{new_parameters[param]}'."
-          immutables_exist = true
+    old_parameters = Hash[old_stack.parameters.map { |p| [p.parameter_key, p.parameter_value]}]
+    new_parameters = template.parameters
+    excised_parameters.each do |extension_attribute, parameters|
+      if !parameters.empty?
+        parameters.sort.each do |param|
+          if old_parameters[param] != new_parameters[param] && old_parameters.key?(param)
+            case extension_attribute
+            when :Immutable
+              if !excised_parameters[:UsePreviousValue].include?(param)
+                $stderr.puts "Error: unable to update immutable parameter " +
+                                 "'#{param}=#{old_parameters[param]}' to '#{param}=#{new_parameters[param]}'."
+                immutables_exist = true
+              end
+            when :UsePreviousValue
+              if !immutables_exist && new_parameters[param].empty?
+                $stderr.puts "Using previous parameter " +
+                                 "'#{param}=#{old_parameters[param]}'."
+                new_parameters[param] = Parameter.new(old_parameters[param])
+                new_parameters[param].use_previous_value = true
+              end
+            end
+          end
         end
       end
     end
@@ -456,6 +473,9 @@ def cfn(template)
     if immutables_exist
       exit(false)
     end
+
+    # Apply any default parameter values
+    apply_parameter_defaults(template.parameters)
 
     # Compare the sorted arrays of parameters for an exact match and print difference.
     old_parameters = old_stack.parameters.map { |p| [p.parameter_key, p.parameter_value]}.sort
@@ -484,7 +504,7 @@ def cfn(template)
       update_stack_opts = {
           stack_name: stack_name,
           template_body: template_string,
-          parameters: template.parameters.map { |k,v| {parameter_key: k, parameter_value: v}}.to_a,
+          parameters: template.parameters.map { |k,v| (v.use_previous_value && old_parameters[0].include?(k)) ? {parameter_key: k, use_previous_value: v.use_previous_value.to_s} : {parameter_key: k, parameter_value: v}}.to_a,
           tags: cfn_tags.map { |k,v| {"key" => k.to_s, "value" => v.to_s} }.to_a,
           capabilities: ["CAPABILITY_IAM"],
       }
@@ -555,6 +575,17 @@ def parse_arg_array_as_hash(options)
       result[key] = value
   }
   result
+end
+
+# Apply the default value for any parameter not assigned by the user
+def apply_parameter_defaults(parameters)
+  parameters.each do |k, v|
+    if v.empty?
+      parameters[k] = v.default
+      $stderr.puts "Using default parameter value " +
+                       "'#{k}=#{parameters[k]}'."
+    end
+  end
 end
 
 ##################################### Additional dsl logic
