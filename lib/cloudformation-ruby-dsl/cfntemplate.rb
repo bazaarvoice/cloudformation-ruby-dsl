@@ -581,7 +581,7 @@ end
 def apply_parameter_defaults(parameters)
   parameters.each do |k, v|
     if v.empty?
-      parameters[k] = v.default
+      parameters[k] = Parameter.new(v.default)
       $stderr.puts "Using default parameter value " +
                        "'#{k}=#{parameters[k]}'."
     end
