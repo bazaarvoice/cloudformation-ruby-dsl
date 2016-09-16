@@ -300,7 +300,7 @@ def cfn(template)
           template_body: template_string,
           parameters: template.parameters.map { |k,v| {parameter_key: k, parameter_value: v}}.to_a,
           tags: cfn_tags.map { |k,v| {"key" => k.to_s, "value" => v} }.to_a,
-          capabilities: ["CAPABILITY_IAM"],
+          capabilities: ["CAPABILITY_NAMED_IAM"],
       }
 
       # fill in options from the command line
@@ -495,7 +495,7 @@ def cfn(template)
           template_body: template_string,
           parameters: template.parameters.map { |k,v| {parameter_key: k, parameter_value: v}}.to_a,
           tags: cfn_tags.map { |k,v| {"key" => k.to_s, "value" => v.to_s} }.to_a,
-          capabilities: ["CAPABILITY_IAM"],
+          capabilities: ["CAPABILITY_NAMED_IAM"],
       }
 
       # fill in options from the command line
