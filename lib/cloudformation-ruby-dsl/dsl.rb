@@ -85,72 +85,6 @@ class TemplateDSL < JsonObjectDSL
     end
   end
 
-  private def _get_parameter_from_cli(name, options)
-    # basic request
-    param_request = "Parameter '#{name}' (#{options[:Type]})"
-
-    # add description to request
-    if options.has_key?(:Description)
-      param_request += "\nDescription: #{options[:Description]}"
-    end
-
-    # add validation to the request
-
-    # allowed pattern
-    if options.has_key?(:AllowedPattern)
-      param_request += "\nAllowed Pattern: /#{options[:AllowedPattern]}/"
-    end
-
-    # allowed values
-    if options.has_key?(:AllowedValues)
-      param_request += "\nAllowed Values: #{options[:AllowedValues].join(', ')}"
-    end
-
-    # min/max length
-    if options.has_key?(:MinLength) or options.has_key?(:MaxLength)
-      min_length = "-infinity"
-      max_length = "+infinity"
-      if options.has_key?(:MinLength)
-        min_length = options[:MinLength]
-      end
-      if options.has_key?(:MaxLength)
-        max_length = options[:MaxLength]
-      end
-      param_request += "\nValid Length: #{min_length} < string < #{max_length}"
-    end
-
-    # min/max value
-    if options.has_key?(:MinValue) or options.has_key?(:MaxValue)
-      min_value = "-infinity"
-      max_value = "+infinity"
-      if options.has_key?(:MinValue)
-        min_value = options[:MinValue]
-      end
-      if options.has_key?(:MaxValue)
-        max_value = options[:MaxValue]
-      end
-      param_request += "\nValid Number: #{min_value} < number < #{max_value}"
-    end
-
-    # add default to request
-    if options.has_key?(:Default) and !options[:Default].nil?
-      param_request += "\nLeave value empty for default: #{options[:Default]}"
-    end
-
-    param_request += "\nValue: "
-
-    # request the param
-    $stdout.puts "===================="
-    $stdout.print param_request
-    input = $stdin.gets.chomp
-
-    if input.nil? or input.empty?
-      options[:Default]
-    else
-      input
-    end
-  end
-
   # Find parameters where the specified attribute is true then remove the attribute from the cfn template.
   def excise_parameter_attribute!(attribute)
     marked_parameters = []
@@ -237,6 +171,73 @@ class TemplateDSL < JsonObjectDSL
       get(get(@dict.fetch(:Mappings).fetch(map), key), name)
     else
       { :'Fn::FindInMap' => [ map, key, name ] }
+    end
+  end
+
+  private
+  def _get_parameter_from_cli(name, options)
+    # basic request
+    param_request = "Parameter '#{name}' (#{options[:Type]})"
+
+    # add description to request
+    if options.has_key?(:Description)
+      param_request += "\nDescription: #{options[:Description]}"
+    end
+
+    # add validation to the request
+
+    # allowed pattern
+    if options.has_key?(:AllowedPattern)
+      param_request += "\nAllowed Pattern: /#{options[:AllowedPattern]}/"
+    end
+
+    # allowed values
+    if options.has_key?(:AllowedValues)
+      param_request += "\nAllowed Values: #{options[:AllowedValues].join(', ')}"
+    end
+
+    # min/max length
+    if options.has_key?(:MinLength) or options.has_key?(:MaxLength)
+      min_length = "-infinity"
+      max_length = "+infinity"
+      if options.has_key?(:MinLength)
+        min_length = options[:MinLength]
+      end
+      if options.has_key?(:MaxLength)
+        max_length = options[:MaxLength]
+      end
+      param_request += "\nValid Length: #{min_length} < string < #{max_length}"
+    end
+
+    # min/max value
+    if options.has_key?(:MinValue) or options.has_key?(:MaxValue)
+      min_value = "-infinity"
+      max_value = "+infinity"
+      if options.has_key?(:MinValue)
+        min_value = options[:MinValue]
+      end
+      if options.has_key?(:MaxValue)
+        max_value = options[:MaxValue]
+      end
+      param_request += "\nValid Number: #{min_value} < number < #{max_value}"
+    end
+
+    # add default to request
+    if options.has_key?(:Default) and !options[:Default].nil?
+      param_request += "\nLeave value empty for default: #{options[:Default]}"
+    end
+
+    param_request += "\nValue: "
+
+    # request the param
+    $stdout.puts "===================="
+    $stdout.print param_request
+    input = $stdin.gets.chomp
+
+    if input.nil? or input.empty?
+      options[:Default]
+    else
+      input
     end
   end
 end
