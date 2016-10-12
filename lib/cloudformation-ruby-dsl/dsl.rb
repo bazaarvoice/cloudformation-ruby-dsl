@@ -249,6 +249,8 @@ def get_att(resource, attribute) { :'Fn::GetAtt' => [ resource, attribute ] } en
 
 def get_azs(region = '') { :'Fn::GetAZs' => region } end
 
+def import_value(value) { :'Fn::ImportValue' => value } end
+
 def join(delim, *list)
   case list.length
     when 0 then ''
