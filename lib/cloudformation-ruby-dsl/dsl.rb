@@ -44,7 +44,7 @@ end
 ############################# CloudFormation DSL
 
 # Main entry point
-def raw_template(options, &block)
+def raw_template(options = {}, &block)
   TemplateDSL.new(options, &block)
 end
 
@@ -62,12 +62,12 @@ class TemplateDSL < JsonObjectDSL
               :aws_profile
 
   def initialize(options)
-    @parameters  = options[:parameters]
-    @interactive = options[:interactive]
+    @parameters  = options.fetch(:parameters, {})
+    @interactive = options.fetch(:interactive, false)
     @stack_name  = options[:stack_name]
-    @aws_region  = options[:region]
+    @aws_region  = options.fetch(:region, default_region)
     @aws_profile = options[:profile]
-    @nopretty    = options[:nopretty]
+    @nopretty    = options.fetch(:nopretty, false)
     super()
   end
 
