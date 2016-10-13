@@ -91,7 +91,7 @@ def parse_args
     when '--stack-name'
       args[:stack_name] = value
     when '--parameters'
-      args[:parameters] = Hash[value.split(/;/).map { |pair| pair.split(/=/, 2) }]  #/# fix for syntax highlighting
+      args[:parameters] = Hash[value.split(/;\s*/).map { |pair| pair.split(/=/, 2) }]  #/# fix for syntax highlighting
     when '--interactive'
       args[:interactive] = true
     when '--region'
