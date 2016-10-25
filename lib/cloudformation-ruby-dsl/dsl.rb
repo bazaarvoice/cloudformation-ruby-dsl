@@ -252,6 +252,15 @@ def get_azs(region = '') { :'Fn::GetAZs' => region } end
 
 def import_value(value) { :'Fn::ImportValue' => value } end
 
+# There are two valid forms of Fn::Sub, with a map and without.
+def sub(sub_string, var_map = {})
+  if var_map.empty?
+    return { :'Fn::Sub' => sub_string }
+  else
+    return { :'Fn::Sub' => [sub_string, var_map] }
+  end
+end
+
 def join(delim, *list)
   case list.length
     when 0 then ''

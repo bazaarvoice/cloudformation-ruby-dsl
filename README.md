@@ -80,6 +80,8 @@ Invoke an intrinsic CloudFormation function.
 - `select(index, list)`
 - `ref(name)`
 - `import_value(value)`
+- `sub(sub_string)`
+- `sub(sub_string, var_map)`
 
 Intrinsic conditionals are also supported, with some syntactic sugar.
 - `fn_not(condition)`

@@ -23,7 +23,7 @@ require 'cloudformation-ruby-dsl/table'
 
 template do
 
-  # Metadata may be embedded into the stack, as per http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/metadata-section-structure.html 
+  # Metadata may be embedded into the stack, as per http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/metadata-section-structure.html
   # The below definition produces CloudFormation interface metadata.
   metadata 'AWS::CloudFormation::Interface', {
     :ParameterGroups => [
@@ -35,7 +35,7 @@ template do
         :Label => { :default => 'Other options' },
         :Parameters => [ 'Label', 'EmailAddress' ]
       }
-    ], 
+    ],
     :ParameterLabels => {
       :EmailAddress => {
         :default => "We value your privacy!"
@@ -78,6 +78,10 @@ template do
   parameter 'EmailAddress',
             :Type => 'String',
             :Description => 'Email address at which to send notification events.'
+
+  parameter 'BucketName',
+            :Type => 'String',
+            :Description => 'Name of the bucket to upload to.'
 
   mapping 'InlineExampleMap',
           :team1 => {
@@ -134,7 +138,7 @@ template do
   #   These tags are excised from the template and used to generate a series of --tag arguments
   #   which are passed to CloudFormation when a stack is created.
   #   They do not ultimately appear in the expanded CloudFormation template.
-  #   The diff subcommand will compare tags with the running stack and identify any changes, 
+  #   The diff subcommand will compare tags with the running stack and identify any changes,
   #   but a stack update will do the diff and throw an error on any immutable tags update attempt.
   #   The tags are propagated to all resources created by the stack, including the stack itself.
   #   If a resource has its own tag with the same name as CF's it's not overwritten.
@@ -236,6 +240,24 @@ template do
           ],
       },
       :Path => '/',
+  }
+
+  # Use sub to set bucket names for an S3 Policy.
+  resource 'ManagedPolicy', :Type => "AWS::IAM::ManagedPolicy", :Properties => {
+    :Description => 'Access policy for S3 Buckets',
+    :PolicyDocument => {
+      :Version => "2012-10-17",
+      :Statement => [
+        {
+          :Action => ["s3:ListBucket"],
+          :Effect => "Allow",
+          :Resource => [
+            sub("arn:aws:s3:::${BucketName}"),
+            sub("arn:aws:s3:::${BaseName}${Hash}", {:BaseName => 'Bucket', :Hash => '3bsd73w'}),
+          ]
+        }
+      ]
+    }
   }
 
   # add conditions that can be used elsewhere in the template
