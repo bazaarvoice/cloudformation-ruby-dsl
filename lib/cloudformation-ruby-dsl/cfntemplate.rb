@@ -109,6 +109,7 @@ end
 
 def validate_action(action)
   valid = %w[
+    help
     expand
     diff
     validate
@@ -188,6 +189,52 @@ def cfn(template)
   end
 
   case action
+  when 'help' 
+  begin
+    # Give some basic usage.
+    help_string=%q(
+## Usage
+
+To convert existing JSON templates to use the DSL, run
+
+    cfntemplate-to-ruby [EXISTING_CFN] > [NEW_NAME.rb]
+
+You may need to preface this with `bundle exec` if you installed via Bundler.
+
+Make the resulting file executable (`chmod +x [NEW_NAME.rb]`). It can respond to the following subcommands (which are listed if you run without parameters):
+- `expand`: output the JSON template to the command line (takes optional `--nopretty` to minimize the output)
+- `diff`: compare an existing stack with your template. Produces following exit codes:
+```
+    0 - no differences, nothing to update
+    1 - stack does not exist, template Validation error
+    2 - there are differences between an existing stack and your template
+```
+- `validate`: run validation against the stack definition
+- `create`: create a new stack from the output
+- `update`: update an existing stack from the output. Produces following exit codes:
+```
+    0 - update finished successfully
+    1 - no updates to perform, stack doesn't exist, unable to update immutable parameter or tag, AWS ServiceError exception
+```
+- `cancel-update`: cancel updating a stack
+- `delete`: delete a stack (with prompt)
+- `describe`: get output of an existing stack and output it (takes optional `--nopretty` to minimize output)
+- `describe-resource`: given two arguments: stack-name and logical-resource-id, get output from a stack concerning the specific resource (takes optional `--nopretty` to minimize output)
+- `get-template`: get entire template output of an existing stack
+
+Command line options similar to cloudformation commands, but parsed by the dsl.
+ --profile --stack-name --region --parameters --tag
+
+Any other parameters are passed directly onto cloudformation. (--disable-rollback for instance)
+
+Using the ruby scripts:
+template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-static;SnsQueue=mysnsqueue"
+
+)
+    puts help_string
+    exit(true)
+  end
+
   when 'expand'
     # Write the pretty-printed JSON template to stdout and exit.  [--nopretty] option writes output with minimal whitespace
     # example: <template.rb> expand --parameters "Env=prod" --region eu-west-1 --nopretty
