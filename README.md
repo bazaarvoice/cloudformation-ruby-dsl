@@ -118,6 +118,7 @@ Reference a CloudFormation pseudo parameter.
 Additional capabilities for file inclusion, etc.
 - `tag(tag_name, tag_options_hash)`: add tags to the stack, which are inherited by all resources in that stack. `tag_options_hash` includes `:Value=>value` and `:Immutable=>true` properties. `tag(tag_value_hash)` is deprecated and will be removed in a future version.
 - `file(name)`: return the named file as a string, for further use
+- `file_min(name)`: returns the named file as a string, with Ruby or Bash comments removed, and newlines stripped out.
 - `load_from_file(filename)`: load the named file by a given type; currently handles YAML, JSON, and Ruby
 - `interpolate(string)`: embed CFN references into a string (`{{ref('Service')}}`) for later interpretation by the CFN engine
 - `Table.load(filename)`: load a table from the listed file, which can then be turned into mappings (via `get_map`)
