@@ -188,7 +188,7 @@ def cfn(template)
   end
 
   case action
-  when 'help' 
+  when 'help'
   begin
     # Give some basic usage.
     help_string=%q(
@@ -560,7 +560,7 @@ template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-stat
       update_stack_opts = {
           stack_name: stack_name,
           template_body: template_string,
-          parameters: template.parameters.map { |k,v| (v.use_previous_value && old_parameters[0].include?(k)) ? {parameter_key: k, use_previous_value: v.use_previous_value.to_s} : {parameter_key: k, parameter_value: v}}.to_a,
+          parameters: template.parameters.map { |k,v| (v.use_previous_value && old_parameters.include?([k,v])) ? {parameter_key: k, use_previous_value: v.use_previous_value.to_s} : {parameter_key: k, parameter_value: v}}.to_a,
           tags: cfn_tags.map { |k,v| {"key" => k.to_s, "value" => v.to_s} }.to_a,
           capabilities: ["CAPABILITY_NAMED_IAM"],
       }
