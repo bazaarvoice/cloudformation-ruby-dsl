@@ -90,6 +90,7 @@ Invoke an intrinsic CloudFormation function.
 - `find_in_map(map, key, name)`
 - `get_att(resource, attribute)`
 - `get_azs(region)`
+- `split(delim, string)`
 - `join(delim, *list)`
 - `select(index, list)`
 - `ref(name)`

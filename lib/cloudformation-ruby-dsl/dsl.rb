@@ -310,6 +310,8 @@ def not_equal(one, two) fn_not(equal(one,two)) end
 
 def select(index, list) { :'Fn::Select' => [ index, list ] } end
 
+def split(delimiter, source_str) { :'Fn::Split' => [delimiter, source_str] } end
+
 def ref(name) { :Ref => name } end
 
 def aws_account_id() ref("AWS::AccountId") end
