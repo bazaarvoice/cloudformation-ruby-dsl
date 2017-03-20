@@ -87,12 +87,14 @@ class TemplateDSL < JsonObjectDSL
     default(:Parameters, {})[name] = options
 
     if @interactive
-      @parameters[name] ||= _get_parameter_from_cli(name, options)
+      @parameters[name] ||= Parameter.new(_get_parameter_from_cli(name, options))
     else
       @parameters[name] ||= Parameter.new('')
-      @parameters[name].default = options[:Default]
-      @parameters[name].use_previous_value = options[:UsePreviousValue]
     end
+
+    # set various param options
+    @parameters[name].default = options[:Default]
+    @parameters[name].use_previous_value = options[:UsePreviousValue]
   end
 
   # Find parameters where the specified attribute is true then remove the attribute from the cfn template.
