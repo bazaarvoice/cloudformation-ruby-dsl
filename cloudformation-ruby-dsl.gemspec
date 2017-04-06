@@ -39,6 +39,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency    'diffy'
   gem.add_runtime_dependency    'highline'
   gem.add_runtime_dependency    'rake'
+  gem.add_runtime_dependency    'deepsort'
 
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'pry'

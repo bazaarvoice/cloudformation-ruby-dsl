@@ -28,6 +28,7 @@ require 'erb'
 require 'aws-sdk'
 require 'diffy'
 require 'highline/import'
+require "deepsort"
 
 ############################# AWS SDK Support
 
@@ -171,7 +172,8 @@ def cfn(template)
   cfn_tags.each {|k, v| cfn_tags[k] = v[:Value].to_s}
 
   if action == 'diff' or (action == 'expand' and not template.nopretty)
-    template_string = JSON.pretty_generate(template)
+    json_template = JSON.parse(JSON.generate(template))
+    template_string = JSON.pretty_generate(json_template.deep_sort_by {|obj| obj.to_s})
   else
     template_string = JSON.generate(template)
   end
@@ -274,7 +276,7 @@ template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-stat
     end
 
     # parse the string into a Hash, then convert back into a string; this is the only way Ruby JSON lets us pretty print a JSON string
-    old_template   = JSON.pretty_generate(JSON.parse(old_template_body))
+    old_template   = JSON.pretty_generate(JSON.parse(old_template_body).deep_sort_by {|obj| obj.to_s})
     # there is only ever one stack, since stack names are unique
     old_attributes = cfn_client.describe_stacks({stack_name: stack_name}).stacks[0]
     old_tags       = old_attributes.tags
