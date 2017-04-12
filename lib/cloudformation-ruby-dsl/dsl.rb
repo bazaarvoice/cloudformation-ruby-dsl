@@ -335,6 +335,9 @@ end
 # Read the specified file and return its value as a string literal
 def file(filename) File.read(File.absolute_path(filename, File.dirname($PROGRAM_NAME))) end
 
+# Read in file, stripping comments and empty lines.
+def file_min(filename) File.readlines(File.absolute_path(filename, File.dirname($PROGRAM_NAME))).reject { |line| line =~ /#(?!\!).*/ }.reject { |c| c.strip.empty? }.join('') end
+
 # Interpolates a string like "NAME={{ref('Service')}}" and returns a CloudFormation "Fn::Join"
 # operation to collect the results.  Anything between {{ and }} is interpreted as a Ruby expression
 # and eval'd.  This is especially useful with Ruby "here" documents.
