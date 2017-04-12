@@ -189,7 +189,6 @@ class TemplateDSL < JsonObjectDSL
     end
   end
 
-  private
   def _get_parameter_from_cli(name, options)
     # basic request
     param_request = "Parameter '#{name}' (#{options[:Type]})"
