@@ -64,16 +64,16 @@ end
 class TemplateDSL < JsonObjectDSL
   attr_reader :parameters,
               :parameter_cli,
-              :aws_region,
               :nopretty,
               :stack_name,
+              :default_region,
               :aws_profile
 
   def initialize(options)
     @parameters  = options.fetch(:parameters, {})
     @interactive = options.fetch(:interactive, false)
     @stack_name  = options[:stack_name]
-    @aws_region  = options.fetch(:region, default_region)
+    @default_region  = options.fetch(:region, default_region)
     @aws_profile = options[:profile]
     @nopretty    = options.fetch(:nopretty, false)
     super()
@@ -325,6 +325,8 @@ def aws_no_value() ref("AWS::NoValue") end
 def aws_stack_id() ref("AWS::StackId") end
 
 def aws_stack_name() ref("AWS::StackName") end
+
+def aws_region() ref("AWS::Region") end
 
 # deprecated, for backward compatibility
 def no_value()
