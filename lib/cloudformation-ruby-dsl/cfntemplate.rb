@@ -151,7 +151,7 @@ def validate_action(action)
 end
 
 def cfn(template)
-  aws_cfn = AwsCfn.new({:region => template.aws_region, :aws_profile => template.aws_profile})
+  aws_cfn = AwsCfn.new({:region => template.default_region, :aws_profile => template.aws_profile})
   cfn_client = aws_cfn.cfn_client
 
   action = validate_action( ARGV[0] )
