@@ -45,8 +45,8 @@ Make the resulting file executable (`chmod +x [NEW_NAME.rb]`). It can respond to
     2 - there are differences between an existing stack and your template
 ```
 - `validate`: run validation against the stack definition
-- `create`: create a new stack from the output
-- `update`: update an existing stack from the output. Produces following exit codes:
+- `create`: create a new stack from the output (takes optional `--s3-bucket` to upload the template to the specified S3 bucket prior to creating the stack)
+- `update`: update an existing stack from the output (takes optional `--s3-bucket` to upload the template to the specified S3 bucket prior to creating the stack). Produces following exit codes:
 ```
     0 - update finished successfully
     1 - no updates to perform, stack doesn't exist, unable to update immutable parameter or tag, AWS ServiceError exception
@@ -62,7 +62,7 @@ Command line options similar to cloudformation commands, but parsed by the dsl.
 - `--stack-name`
 - `--region`
 - `--parameters`
-- `--tag  `
+- `--tag`
 
 Any other parameters are passed directly onto cloudformation. (--disable-rollback for instance)
 
