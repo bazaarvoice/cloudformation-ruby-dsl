@@ -181,11 +181,7 @@ def cfn(template)
 
   cfn_tags.each {|k, v| cfn_tags[k] = v[:Value].to_s}
 
-  if action == 'diff' or (action == 'expand' and not template.nopretty)
-    template_string = JSON.pretty_generate(template)
-  else
-    template_string = JSON.generate(template)
-  end
+  template_string = generate_template(template)
 
   # Derive stack name from ARGV
   _, options = extract_options(ARGV[1..-1], %w(--nopretty), %w(--profile --stack-name --region --parameters --tag --s3-bucket))
@@ -248,12 +244,7 @@ template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-stat
   when 'expand'
     # Write the pretty-printed JSON template to stdout and exit.  [--nopretty] option writes output with minimal whitespace
     # example: <template.rb> expand --parameters "Env=prod" --region eu-west-1 --nopretty
-    if template.nopretty
-      puts template_string
-    else
-      puts template_string
-    end
-    exit(true)
+    template_string
 
   when 'diff'
     # example: <template.rb> diff my-stack-name --parameters "Env=prod" --region eu-west-1
@@ -343,7 +334,28 @@ template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-stat
 
   when 'validate'
     begin
-      valid = cfn_client.validate_template({template_body: template_string})
+      validation_payload = {}
+      if template.s3_bucket.nil? then
+        validation_payload = {template_body: template_string}
+      else
+        template_path = "#{Time.now.strftime("%s")}/#{stack_name}.json"
+        # assumption: JSON is the only supported serialization format (YAML not allowed)
+        template_url = "https://s3.amazonaws.com/#{template.s3_bucket}/#{template_path}"
+        begin
+          s3_client.put_object({
+            bucket: template.s3_bucket,
+            key: template_path,
+            # canned ACL for authorized users to read the bucket (that should be *this* IAM role!)
+            acl: "private",
+            body: template_string,
+          })
+        rescue Aws::S3::Errors::ServiceError => e
+          $stderr.puts "Failed to upload stack template to S3: #{e}"
+          exit(false)
+        end
+        validation_payload = {template_url: template_url}
+      end
+      valid = cfn_client.validate_template(validation_payload)
       if valid.successful?
         puts "Validation successful"
         exit(true)
@@ -375,13 +387,18 @@ template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-stat
         template_path = "#{Time.now.strftime("%s")}/#{stack_name}.json"
         # assumption: JSON is the only supported serialization format (YAML not allowed)
         template_url = "https://s3.amazonaws.com/#{template.s3_bucket}/#{template_path}"
-        object_result = s3_client.put_object({
-          bucket: template.s3_bucket,
-          key: template_path,
-          # canned ACL for authorized users to read the bucket (that should be *this* IAM role!)
-          acl: "authenticated-read",
-          body: template_string,
-        })
+        begin
+          s3_client.put_object({
+            bucket: template.s3_bucket,
+            key: template_path,
+            # canned ACL for authorized users to read the bucket (that should be *this* IAM role!)
+            acl: "private",
+            body: template_string,
+          })
+        rescue Aws::S3::Errors::ServiceError => e
+          $stderr.puts "Failed to upload stack template to S3: #{e}"
+          exit(false)
+        end
         create_stack_opts["template_url"] = template_url
       end
 
@@ -591,7 +608,6 @@ template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-stat
       # default options (not overridable)
       update_stack_opts = {
           stack_name: stack_name,
-          template_body: template_string,
           parameters: template.parameters.map { |k,v| (v.use_previous_value && old_parameters.include?([k,v])) ? {parameter_key: k, use_previous_value: v.use_previous_value.to_s} : {parameter_key: k, parameter_value: v}}.to_a,
           tags: cfn_tags.map { |k,v| {"key" => k.to_s, "value" => v.to_s} }.to_a,
           capabilities: ["CAPABILITY_NAMED_IAM"],
@@ -609,7 +625,7 @@ template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-stat
           bucket: template.s3_bucket,
           key: template_path,
           # canned ACL for authorized users to read the bucket (that should be *this* IAM role!)
-          acl: "authenticated-read",
+          acl: "private",
           body: template_string,
         })
         update_stack_opts["template_url"] = template_url
@@ -700,7 +716,10 @@ end
 ##################################### Additional dsl logic
 # Core interpreter for the DSL
 class TemplateDSL < JsonObjectDSL
-  def exec!()
+  def exec!
+    puts cfn(self)
+  end
+  def exec
     cfn(self)
   end
 end

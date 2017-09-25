@@ -4,7 +4,7 @@ require 'json'
 
 # Formats a template as JSON
 def generate_template(template)
-  format_json template, !template.nopretty
+  generate_json template, !template.nopretty
 end
 
 def generate_json(data, pretty = true)
