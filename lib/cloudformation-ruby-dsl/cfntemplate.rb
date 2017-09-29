@@ -620,7 +620,7 @@ template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-stat
       else
         template_path = "#{Time.now.strftime("%s")}/#{stack_name}.json"
         # assumption: JSON is the only supported serialization format (YAML not allowed)
-        template_url = "s3://#{template.s3_bucket}/#{template_path}"
+        template_url = "https://s3.amazonaws.com/#{template.s3_bucket}/#{template_path}"
         s3_client.put_object({
           bucket: template.s3_bucket,
           key: template_path,
