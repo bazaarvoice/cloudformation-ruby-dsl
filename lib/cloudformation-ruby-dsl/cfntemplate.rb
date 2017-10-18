@@ -85,6 +85,7 @@ def parse_args
     :region      => default_region,
     :profile     => nil,
     :nopretty    => false,
+    :output_yaml => false
   }
   ARGV.slice_before(/^--/).each do |name, value|
     case name
@@ -100,6 +101,8 @@ def parse_args
       args[:profile] = value
     when '--nopretty'
       args[:nopretty] = true
+    when '--output-yaml'
+      args[:output_yaml] = true
     end
   end
 
@@ -170,14 +173,16 @@ def cfn(template)
 
   cfn_tags.each {|k, v| cfn_tags[k] = v[:Value].to_s}
 
-  if action == 'diff' or (action == 'expand' and not template.nopretty)
+  if (action == 'diff' or (action == 'expand' and not template.nopretty)) and not template.output_yaml
     template_string = JSON.pretty_generate(template)
+  elsif action == 'expand' and template.output_yaml
+    template_string = template.to_yaml
   else
     template_string = JSON.generate(template)
   end
 
   # Derive stack name from ARGV
-  _, options = extract_options(ARGV[1..-1], %w(--nopretty), %w(--profile --stack-name --region --parameters --tag))
+  _, options = extract_options(ARGV[1..-1], %w(--nopretty --output-yaml), %w(--profile --stack-name --region --parameters --tag))
   # If the first argument is not an option and stack_name is undefined, assume it's the stack name
   # The second argument, if present, is the resource name used by the describe-resource command
   if template.stack_name.nil?
@@ -201,7 +206,7 @@ To convert existing JSON templates to use the DSL, run
 You may need to preface this with `bundle exec` if you installed via Bundler.
 
 Make the resulting file executable (`chmod +x [NEW_NAME.rb]`). It can respond to the following subcommands (which are listed if you run without parameters):
-- `expand`: output the JSON template to the command line (takes optional `--nopretty` to minimize the output)
+- `expand`: output the JSON template to the command line (takes optional `--nopretty` to minimize the output or switch to yaml output with `--output-yaml`)
 - `diff`: compare an existing stack with your template. Produces following exit codes:
 ```
     0 - no differences, nothing to update

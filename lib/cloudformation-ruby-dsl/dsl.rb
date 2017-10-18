@@ -15,7 +15,6 @@ def generate_json(data, pretty = true)
   JSON.pretty_generate(data)
 end
 
-
 ############################# Generic DSL
 
 class JsonObjectDSL
@@ -34,6 +33,11 @@ class JsonObjectDSL
 
   def to_json(*args)
     @dict.to_json(*args)
+  end
+
+  def to_yaml(*args)
+    @dict.deep_stringify_keys!
+    @dict.to_yaml(*args)
   end
 
   def print()
@@ -67,7 +71,8 @@ class TemplateDSL < JsonObjectDSL
               :aws_region,
               :nopretty,
               :stack_name,
-              :aws_profile
+              :aws_profile,
+              :output_yaml
 
   def initialize(options)
     @parameters  = options.fetch(:parameters, {})
@@ -76,6 +81,7 @@ class TemplateDSL < JsonObjectDSL
     @aws_region  = options.fetch(:region, default_region)
     @aws_profile = options[:profile]
     @nopretty    = options.fetch(:nopretty, false)
+    @output_yaml = options.fetch(:output_yaml, false)
     super()
   end
 
@@ -375,4 +381,30 @@ end
 
 def warn_deprecated(old, new)
     $stderr.puts "Warning: '#{old}' has been deprecated.  Please update your template to use '#{new}' instead."
+end
+
+# These methods are used by the yaml output
+class Hash
+  def deep_stringify_keys!
+    deep_transform_keys!{ |key| key.to_s }
+  end
+
+  def deep_transform_keys!(&block)
+    _deep_transform_keys_in_object!(self, &block)
+  end
+
+  def _deep_transform_keys_in_object!(object, &block)
+    case object
+      when Hash
+        object.keys.each do |key|
+          value = object.delete(key)
+          object[yield(key)] = _deep_transform_keys_in_object!(value, &block)
+        end
+        object
+      when Array
+        object.map! {|e| _deep_transform_keys_in_object!(e, &block)}
+      else
+        object
+    end
+  end
 end

@@ -37,7 +37,7 @@ To convert existing JSON templates to use the DSL, run
 You may need to preface this with `bundle exec` if you installed via Bundler.
 
 Make the resulting file executable (`chmod +x [NEW_NAME.rb]`). It can respond to the following subcommands (which are listed if you run without parameters):
-- `expand`: output the JSON template to the command line (takes optional `--nopretty` to minimize the output)
+- `expand`: output the JSON template to the command line (takes optional `--nopretty` to minimize the output or switch to yaml output with `--output-yaml`)
 - `diff`: compare an existing stack with your template. Produces following exit codes:
 ```
     0 - no differences, nothing to update
