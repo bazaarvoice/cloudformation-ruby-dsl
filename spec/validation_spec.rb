@@ -8,7 +8,12 @@ RSpec.shared_examples "template acceptance validations" do
 
   it "should create a valid JSON template from the example ruby template" do
     delete_test_file(json_template)
-    json = exec_cmd("./#{ruby_template} expand", :within => "examples").first
+    command = "./#{ruby_template} expand"
+    if defined?(parameters)
+      params_str = parameters.map { |k, v| [k, v].join('=') }.join(';')
+      command += " --parameters #{params_str}"
+    end
+    json = exec_cmd(command, :within => "examples").first
     write_test_file(json_template, json)
     validate_cfn_template(json_template)
   end
