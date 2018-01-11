@@ -101,7 +101,7 @@ template do
   mapping 'YamlExampleMap', 'maps/map.yaml'
 
   # Loads JSON mappings dynamically from example directory.
-  Dir.entries('maps/more_maps').each_with_index do |path, index|
+  Dir.entries('maps/more_maps').sort.each_with_index do |path, index|
     next if path == "." or path == ".."
     mapping "ExampleMap#{index - 1}", "maps/more_maps/#{path}"
   end
