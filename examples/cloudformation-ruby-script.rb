@@ -223,9 +223,11 @@ template do
       :UserData => base64(interpolate(file('userdata.sh'), time: Time.now)),
   }
 
+  condition 'Numerical', equal(3, 0)
+
   resource 'InstanceProfile', :Type => 'AWS::IAM::InstanceProfile', :Properties => {
       # use cfn intrinsic conditional to choose the 2nd value because the expression evaluates to false
-      :Path => fn_if(equal(3, 0), '/unselected/', '/'),
+      :Path => fn_if('Numerical', '/unselected/', '/'),
       :Roles => [ ref('InstanceRole') ],
   }
 
