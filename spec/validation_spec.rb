@@ -27,5 +27,11 @@ describe "cloudformation-ruby-dsl" do
     include_examples "template acceptance validations"
   end
 
-  # TODO validate examples/cloudformation-ruby-script.rb
+  context "complex template" do
+    let(:ruby_template) { "cloudformation-ruby-script.rb" }
+    let(:json_template) { "cloudformation-ruby-script.json" }
+    let(:parameters) { Hash['Label' => 'Foobar'] }
+
+    include_examples "template acceptance validations"
+  end
 end
