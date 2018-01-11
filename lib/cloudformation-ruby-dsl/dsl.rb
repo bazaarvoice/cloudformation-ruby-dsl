@@ -261,7 +261,7 @@ def base64(value) { :'Fn::Base64' => value } end
 
 def find_in_map(map, key, name) { :'Fn::FindInMap' => [ map, key, name ] } end
 
-def get_att(resource, *attribute) { :'Fn::GetAtt' => [ resource, *attribute ] } end
+def get_att(resource, *attribute) { :'Fn::GetAtt' => [ resource, attribute.join('.') ] } end
 
 def get_azs(region = '') { :'Fn::GetAZs' => region } end
 
