@@ -1,7 +1,9 @@
 {
     "Mappings": {
         "JsonExampleMap": {
-            "foo": "bar"
+            "foo": {
+                "bar": "yo"
+            }
         }
     }
 
