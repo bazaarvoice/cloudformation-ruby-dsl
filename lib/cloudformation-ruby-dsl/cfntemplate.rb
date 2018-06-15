@@ -86,13 +86,14 @@ end
 # Parse command-line arguments and return the parameters and region
 def parse_args
   args = {
-    :stack_name  => nil,
-    :parameters  => {},
-    :interactive => false,
-    :region      => default_region,
-    :profile     => nil,
-    :nopretty    => false,
-    :s3_bucket   => nil,
+    :stack_name        => nil,
+    :parameters        => {},
+    :interactive       => false,
+    :region            => default_region,
+    :profile           => nil,
+    :nopretty          => false,
+    :s3_bucket         => nil,
+    :enable_protection => false,
   }
   ARGV.slice_before(/^--/).each do |name, value|
     case name
@@ -110,6 +111,8 @@ def parse_args
       args[:nopretty] = true
     when '--s3-bucket'
       args[:s3_bucket] = value
+    when '--enable-termination-protection'
+      args[:enable_protection] = true
     end
   end
 
@@ -184,7 +187,7 @@ def cfn(template)
   template_string = generate_template(template)
 
   # Derive stack name from ARGV
-  _, options = extract_options(ARGV[1..-1], %w(--nopretty), %w(--profile --stack-name --region --parameters --tag --s3-bucket))
+  _, options = extract_options(ARGV[1..-1], %w(--nopretty), %w(--profile --stack-name --region --parameters --tag --s3-bucket --enable-termination-protection))
   # If the first argument is not an option and stack_name is undefined, assume it's the stack name
   # The second argument, if present, is the resource name used by the describe-resource command
   if template.stack_name.nil?
@@ -377,6 +380,7 @@ template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-stat
           parameters: template.parameters.map { |k,v| {parameter_key: k, parameter_value: v}}.to_a,
           tags: cfn_tags.map { |k,v| {"key" => k.to_s, "value" => v} }.to_a,
           capabilities: ["CAPABILITY_NAMED_IAM"],
+          enable_termination_protection: template.enable_protection,
       }
 
       # If the user supplied the --s3-bucket option and
