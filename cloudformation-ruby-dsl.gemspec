@@ -35,7 +35,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency    'detabulator'
   gem.add_runtime_dependency    'json'
   gem.add_runtime_dependency    'bundler'
-  gem.add_runtime_dependency    'aws-sdk', '>=2.5.1'
+  gem.add_runtime_dependency    'aws-sdk', '>=3.0.1'
   gem.add_runtime_dependency    'diffy'
   gem.add_runtime_dependency    'highline'
   gem.add_runtime_dependency    'rake'

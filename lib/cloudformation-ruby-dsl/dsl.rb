@@ -68,16 +68,18 @@ class TemplateDSL < JsonObjectDSL
               :nopretty,
               :stack_name,
               :aws_profile,
-              :s3_bucket
+              :s3_bucket,
+              :enable_protection
 
   def initialize(options)
-    @parameters  = options.fetch(:parameters, {})
-    @interactive = options.fetch(:interactive, false)
-    @stack_name  = options[:stack_name]
-    @aws_region  = options.fetch(:region, default_region)
-    @aws_profile = options[:profile]
-    @nopretty    = options.fetch(:nopretty, false)
-    @s3_bucket   = options.fetch(:s3_bucket, nil)
+    @parameters        = options.fetch(:parameters, {})
+    @interactive       = options.fetch(:interactive, false)
+    @stack_name        = options[:stack_name]
+    @aws_region        = options.fetch(:region, default_region)
+    @aws_profile       = options[:profile]
+    @nopretty          = options.fetch(:nopretty, false)
+    @s3_bucket         = options.fetch(:s3_bucket, nil)
+    @enable_protection = options.fetch(:enable_protection, false)
     super()
   end
 
