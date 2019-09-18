@@ -26,6 +26,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{Ruby DSL library that provides a wrapper around the CloudFormation.}
   gem.summary       = %q{Ruby DSL library that provides a wrapper around the CloudFormation.  Written by [Bazaarvoice](http://www.bazaarvoice.com).}
   gem.homepage      = "http://github.com/bazaarvoice/cloudformation-ruby-dsl"
+  gem.license       = "Apache-2.0"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
