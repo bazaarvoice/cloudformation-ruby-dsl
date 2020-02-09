@@ -88,7 +88,7 @@ Add the named object to the appropriate collection.
 Invoke an intrinsic CloudFormation function.
 - `base64(value)`
 - `find_in_map(map, key, name)`
-- `get_att(resource, attribute)`
+- `get_att(resource, *attribute)`
 - `get_azs(region)`
 - `split(delim, string)`
 - `join(delim, *list)`
@@ -97,6 +97,8 @@ Invoke an intrinsic CloudFormation function.
 - `import_value(value)`
 - `sub(sub_string)`
 - `sub(sub_string, var_map)`
+The attribute argument in `get_att(resource, attribute)` can contain dots,
+or alternatively specify multiple values to have them concatenated with dots in the output.
 
 Intrinsic conditionals are also supported, with some syntactic sugar.
 - `fn_not(condition)`

@@ -154,6 +154,7 @@ module AwsHelpers
   def validation_command(template_path)
     return <<-EOF
       aws cloudformation validate-template --template-body file://#{template_path} \
+                                           --output json \
                                            --region #{region} \
                                            --profile #{profile}
     EOF

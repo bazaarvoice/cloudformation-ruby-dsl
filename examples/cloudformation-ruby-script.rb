@@ -101,7 +101,7 @@ template do
   mapping 'YamlExampleMap', 'maps/map.yaml'
 
   # Loads JSON mappings dynamically from example directory.
-  Dir.entries('maps/more_maps').each_with_index do |path, index|
+  Dir.entries('maps/more_maps').sort.each_with_index do |path, index|
     next if path == "." or path == ".."
     mapping "ExampleMap#{index - 1}", "maps/more_maps/#{path}"
   end
@@ -223,9 +223,11 @@ template do
       :UserData => base64(interpolate(file('userdata.sh'), time: Time.now)),
   }
 
+  condition 'Numerical', equal(3, 0)
+
   resource 'InstanceProfile', :Type => 'AWS::IAM::InstanceProfile', :Properties => {
       # use cfn intrinsic conditional to choose the 2nd value because the expression evaluates to false
-      :Path => fn_if(equal(3, 0), '/unselected/', '/'),
+      :Path => fn_if('Numerical', '/unselected/', '/'),
       :Roles => [ ref('InstanceRole') ],
   }
 
@@ -260,6 +262,17 @@ template do
     }
   }
 
+  resource 'SampleRds', :Type => "AWS::RDS::DBInstance", :Properties => {
+    :Description => "Sample RDS resource",
+    :DBName => "sample-rds",
+    :AllocatedStorage => "100",
+    :DBInstanceClass => "db.m4.large",
+    :Engine => "MySQL",
+    :EngineVersion => "5.5",
+    :MasterUsername => "rds-user",
+    :MasterUserPassword => "foobar"
+  }
+
   # add conditions that can be used elsewhere in the template
   condition 'myCondition', fn_and(equal("one", "two"), not_equal("three", "four"))
 
@@ -270,5 +283,13 @@ template do
   output 'MappingLookup',
           :Value => find_in_map('TableExampleMap', 'corge', 'grault'),
           :Description => 'An example map lookup.'
+
+  output 'RdsAddress',
+          :Value => get_att('SampleRds', 'Endpoint.Address'),
+          :Description => 'Address of the RDS instance'
+
+  output 'RdsPort',
+          :Value => get_att('SampleRds', 'Endpoint', 'Port'),
+          :Description => 'Port the RDS instance listens on'
 
 end.exec!
