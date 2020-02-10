@@ -126,3 +126,7 @@ Additional capabilities for file inclusion, etc.
 ### Default Region
 
 The tool defaults to region `us-east-1`. To change this set either `EC2_REGION` or `AWS_DEFAULT_REGION` in your environment.
+
+## Usage as a library
+
+See [examples/simple_template.rb](examples/simple_template.rb)

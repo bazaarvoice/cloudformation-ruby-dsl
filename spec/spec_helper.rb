@@ -1,7 +1,9 @@
+require 'rspec'
 require 'fileutils'
 require 'json'
 require 'open3'
-
+require 'aws-sdk'
+require 'cloudformation-ruby-dsl/dsl'
 ##
 # Error encapsulating information about a failed command
 class CommandError < StandardError
@@ -159,3 +161,22 @@ module AwsHelpers
     EOF
   end
 end
+
+
+class RspecHelpers
+  class << self
+    def cloudformation
+      @_cloudformation_ ||= ::Aws::CloudFormation::Client.new(region: region, profile: profile)
+    end
+  end
+end
+
+RSpec.configure do |c|
+  c.include CommandHelpers
+  c.include JsonHelpers
+  c.include FileHelpers
+  c.include AwsHelpers
+end
+
+Dir["./spec/support/*.rb", "./spec/matchers/*.rb"].each {|f| require f}
+
