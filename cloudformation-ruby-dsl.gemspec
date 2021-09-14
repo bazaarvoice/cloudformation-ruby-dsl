@@ -32,6 +32,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = %w{lib bin}
 
+  gem.add_runtime_dependency    'nokogiri'
   gem.add_runtime_dependency    'detabulator'
   gem.add_runtime_dependency    'json'
   gem.add_runtime_dependency    'bundler'
