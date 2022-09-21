@@ -22,9 +22,7 @@ If the change affects the way in which the gem is released, or requires a bump i
  - [pr2]()
 
 ## Todos
-- [x] Pull Request
-- [ ] Tests
+- [ ] Pull Request
+- [x ] Tests
 - [ ] Documentation
 
-## Request to Review
-@jonaf/@temujin9 
