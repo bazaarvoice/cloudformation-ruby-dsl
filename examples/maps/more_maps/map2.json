@@ -1,7 +1,9 @@
 {
     "Mappings": {
         "ExampleMap2": {
-            "smith": "john"
+            "names": {
+                "smith": "john"
+            }
         }
     }
 

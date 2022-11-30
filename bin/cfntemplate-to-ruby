@@ -312,7 +312,7 @@ def simplify(val)
         when k == 'Fn::FindInMap'
           FnCall.new 'find_in_map', v
         when k == 'Fn::GetAtt'
-          FnCall.new 'get_att', v
+          FnCall.new 'get_att', [v.first, v.drop(1).join('.')]
         when k == 'Fn::GetAZs'
           FnCall.new 'get_azs', v != '' ? [v] : []
         when k == 'Fn::Join'
