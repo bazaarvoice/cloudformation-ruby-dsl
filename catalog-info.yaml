@@ -1,0 +1,24 @@
+####################################################################
+#   Component
+####################################################################
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cloudformation-ruby-dsl
+  github.com/project-slug: bazaarvoice/cloudformation-ruby-dsl
+  description: A Ruby DSL and helper library-utilities for building CloudFormation templates dynamically
+  annotations:
+    github.com/project-slug: bazaarvoice/cloudformation-ruby-dsl
+  links:
+    - url: https://bazaarvoice.slack.com/app_redirect?channel=dev-ex
+      title: Slack channel
+      icon: send
+  tags:
+    - cloudformation
+    - aws
+    - ruby
+spec:
+  type: library
+  system: devex-tools
+  lifecycle: production
+  owner: developer-experience
