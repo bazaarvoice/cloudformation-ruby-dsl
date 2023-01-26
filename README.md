@@ -1,5 +1,7 @@
 # cloudformation-ruby-dsl
 
+**Note: This is an unmaintained fork of the original created for the express purpose of using AWS SDK 3 and reducing dependencies**
+
 A Ruby DSL and helper utilities for building CloudFormation templates dynamically.
 
 Written by [Bazaarvoice](http://www.bazaarvoice.com): see [the contributors page](https://github.com/bazaarvoice/cloudformation-ruby-dsl/graphs/contributors) and [the initial contributions](https://github.com/bazaarvoice/cloudformation-ruby-dsl/blob/master/initial_contributions.md) for more details.
