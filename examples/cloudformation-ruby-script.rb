@@ -260,6 +260,16 @@ template do
     }
   }
 
+  resource 'Vpc', :Type => "AWS::EC2::VPC", :Properties => {
+    :CidrBlock => "10.0.0.0/16"
+  }
+
+  resource 'Subnet', :Type => "AWS::EC2::Subnet", :DependsOn => 'Vpc', :Properties => {
+    :AvailabilityZone => select(0, get_azs()),
+    :CidrBlock => select(0, cidr(get_att('Vpc', 'CidrBlock'), 8, 8)),
+    :VpcId => ref('vpc')
+  }
+
   # add conditions that can be used elsewhere in the template
   condition 'myCondition', fn_and(equal("one", "two"), not_equal("three", "four"))
 

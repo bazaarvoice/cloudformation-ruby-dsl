@@ -261,6 +261,8 @@ end
 
 def base64(value) { :'Fn::Base64' => value } end
 
+def cidr(ipblock, count, cidrbits) { :'Fn::Cidr' => [ ipblock, count, cidrbits ] } end
+
 def find_in_map(map, key, name) { :'Fn::FindInMap' => [ map, key, name ] } end
 
 def get_att(resource, attribute) { :'Fn::GetAtt' => [ resource, attribute ] } end

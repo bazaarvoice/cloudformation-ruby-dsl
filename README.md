@@ -87,6 +87,7 @@ Add the named object to the appropriate collection.
 
 Invoke an intrinsic CloudFormation function.
 - `base64(value)`
+- `cidr(ipblock, count, cidrbits)`
 - `find_in_map(map, key, name)`
 - `get_att(resource, attribute)`
 - `get_azs(region)`

@@ -114,7 +114,7 @@ def pprint_cfn_template(tpl)
   tpl.each do |section, v|
     case section
       when 'Metadata'
-        v.each { |name, options| pprint_cfn_section 'metadata', name, options }        
+        v.each { |name, options| pprint_cfn_section 'metadata', name, options }
       when 'Parameters'
         v.each { |name, options| pprint_cfn_section 'parameter', name, options }
       when 'Mappings'
@@ -309,6 +309,8 @@ def simplify(val)
       case
         when k == 'Fn::Base64'
           FnCall.new 'base64', [v], true
+        when k == 'Fn::Cidr'
+          FnCall.new 'cidr', v
         when k == 'Fn::FindInMap'
           FnCall.new 'find_in_map', v
         when k == 'Fn::GetAtt'
