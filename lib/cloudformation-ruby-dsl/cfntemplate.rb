@@ -99,7 +99,7 @@ def parse_args
     when '--stack-name'
       args[:stack_name] = value
     when '--parameters'
-      args[:parameters] = Hash[value.split(/;/).map { |pair| parts = pair.split(/=/, 2); [ parts[0], Parameter.new(parts[1]) ] }]
+      args[:parameters] = Hash[value.split(/;/).map { |pair| parts = pair.split(/=/, 2); [ parts[0], TemplateParameter.new(parts[1]) ] }]
     when '--interactive'
       args[:interactive] = true
     when '--region'
@@ -553,7 +553,7 @@ template.rb create --stack-name my_stack --parameters "BucketName=bucket-s3-stat
               if !immutables_exist && new_parameters[param].empty?
                 $stderr.puts "Using previous parameter " +
                                  "'#{param}=#{old_parameters[param]}'."
-                new_parameters[param] = Parameter.new(old_parameters[param])
+                new_parameters[param] = TemplateParameter.new(old_parameters[param])
                 new_parameters[param].use_previous_value = true
               end
             end
@@ -706,7 +706,7 @@ end
 def apply_parameter_defaults(parameters)
   parameters.each do |k, v|
     if v.empty?
-      parameters[k] = Parameter.new(v.default)
+      parameters[k] = TemplateParameter.new(v.default)
       $stderr.puts "Using default parameter value " +
                        "'#{k}=#{parameters[k]}'."
     end

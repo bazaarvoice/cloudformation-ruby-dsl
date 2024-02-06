@@ -2,25 +2,13 @@
 require 'bundler/setup'
 require 'cloudformation-ruby-dsl/cfntemplate'
 
-
-extension = File.join(__dir__, "simple_template_extension.rb")
-
-dsl = TemplateDSL.new({region: 'eu-west-1'}, [ extension ])
-# equivalent to:
-# 
-# dsl = TemplateDSL.new({region: 'eu-west-1'})
-# dsl.load_from_file(extension)
-
-
-dsl.template do
+tmpl = template do
   @stack_name = 'hello-bucket-example'
-
-  value AWSTemplateFormatVersion: "2010-09-09"
 
   parameter 'Label',
             :Description => 'The label to apply to the bucket.',
             :Type => 'String',
-            :Default => params['Label'],
+            :Default => 'cfnrdsl',
             :UsePreviousValue => true
 
   resource "HelloBucket",
@@ -28,9 +16,7 @@ dsl.template do
             :Properties => {
               :BucketName => ref('Label')
             }
+            
+end
 
-  sns_topic "BucketUpdates"
-
-end.excise_parameter_attributes!([:Immutable, :UsePreviousValue])
-
-dsl.exec!
+tmpl.exec!
